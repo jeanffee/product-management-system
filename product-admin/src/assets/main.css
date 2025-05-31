@@ -21,6 +21,15 @@ a,
   }
 }
 
+/* Dark theme link adjustments */
+body[data-theme='dark'] a {
+  color: #66bfff; /* Lighter blue for links in dark mode */
+}
+
+body[data-theme='dark'] a:hover {
+  background-color: rgba(102, 191, 255, 0.2); /* Lighter hover for dark mode */
+}
+
 @media (min-width: 1024px) {
   body {
     display: flex;

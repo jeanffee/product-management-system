@@ -1,7 +1,7 @@
 import './assets/main.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import Antd from 'ant-design-vue'
+import Antd, { ConfigProvider, theme } from 'ant-design-vue'
 import 'ant-design-vue/dist/reset.css'
 import * as Icons from '@ant-design/icons-vue'
 
@@ -18,5 +18,7 @@ for (const [key, component] of Object.entries(Icons)) {
 app.use(createPinia())
 app.use(router)
 app.use(Antd)
+
+// app.component(ConfigProvider.name, ConfigProvider) // No longer needed here
 
 app.mount('#app')
