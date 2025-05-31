@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前后端集成测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .loading { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button { margin: 5px; padding: 10px 15px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>前后端集成测试</h1>
+    
+    <div>
+        <button onclick="testGetProducts()">测试获取商品列表</button>
+        <button onclick="testGetCategories()">测试获取分类列表</button>
+        <button onclick="testCreateProduct()">测试创建商品</button>
+        <button onclick="testUpdateProduct()">测试更新商品</button>
+        <button onclick="testDeleteProduct()">测试删除商品</button>
+        <button onclick="clearResults()">清空结果</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001/api';
+        
+        function addResult(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = message;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function request(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${url}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                const data = await response.json();
+                return { success: response.ok, data, status: response.status };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function testGetProducts() {
+            addResult('正在测试获取商品列表...', 'loading');
+            
+            const result = await request('/products');
+            
+            if (result.success && result.data.success) {
+                addResult(`✅ 获取商品列表成功！共 ${result.data.data.length} 个商品<br><pre>${JSON.stringify(result.data, null, 2)}</pre>`);
+            } else {
+                addResult(`❌ 获取商品列表失败: ${result.error || result.data.message}`, 'error');
+            }
+        }
+
+        async function testGetCategories() {
+            addResult('正在测试获取分类列表...', 'loading');
+            
+            const result = await request('/products/categories/list');
+            
+            if (result.success && result.data.success) {
+                addResult(`✅ 获取分类列表成功！<br><pre>${JSON.stringify(result.data.data, null, 2)}</pre>`);
+            } else {
+                addResult(`❌ 获取分类列表失败: ${result.error || result.data.message}`, 'error');
+            }
+        }
+
+        async function testCreateProduct() {
+            addResult('正在测试创建商品...', 'loading');
+            
+            const productData = {
+                name: '测试商品' + Date.now(),
+                description: '这是一个测试商品',
+                price: 99.99,
+                category: '测试分类',
+                stock: 10,
+                image_url: 'https://via.placeholder.com/300x300?text=Test+Product'
+            };
+
+            const result = await request('/products', {
+                method: 'POST',
+                body: JSON.stringify(productData)
+            });
+            
+            if (result.success && result.data.success) {
+                window.testProductId = result.data.data.id; // 保存ID用于后续测试
+                addResult(`✅ 创建商品成功！商品ID: ${result.data.data.id}<br><pre>${JSON.stringify(result.data.data, null, 2)}</pre>`);
+            } else {
+                addResult(`❌ 创建商品失败: ${result.error || result.data.message}`, 'error');
+            }
+        }
+
+        async function testUpdateProduct() {
+            if (!window.testProductId) {
+                addResult('❌ 请先创建一个测试商品', 'error');
+                return;
+            }
+
+            addResult('正在测试更新商品...', 'loading');
+            
+            const updateData = {
+                name: '更新后的测试商品',
+                description: '这是更新后的商品描述',
+                price: 199.99,
+                stock: 20
+            };
+
+            const result = await request(`/products/${window.testProductId}`, {
+                method: 'PUT',
+                body: JSON.stringify(updateData)
+            });
+            
+            if (result.success && result.data.success) {
+                addResult(`✅ 更新商品成功！<br><pre>${JSON.stringify(result.data.data, null, 2)}</pre>`);
+            } else {
+                addResult(`❌ 更新商品失败: ${result.error || result.data.message}`, 'error');
+            }
+        }
+
+        async function testDeleteProduct() {
+            if (!window.testProductId) {
+                addResult('❌ 请先创建一个测试商品', 'error');
+                return;
+            }
+
+            addResult('正在测试删除商品...', 'loading');
+            
+            const result = await request(`/products/${window.testProductId}`, {
+                method: 'DELETE'
+            });
+            
+            if (result.success && result.data.success) {
+                addResult(`✅ 删除商品成功！`);
+                window.testProductId = null; // 清空ID
+            } else {
+                addResult(`❌ 删除商品失败: ${result.error || result.data.message}`, 'error');
+            }
+        }
+
+        // 页面加载时自动测试连接
+        window.onload = function() {
+            addResult('页面加载完成，开始测试后端连接...', 'loading');
+            testGetProducts();
+        };
+    </script>
+</body>
+</html> 
