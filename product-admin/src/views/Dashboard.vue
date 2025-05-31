@@ -19,6 +19,12 @@
           </template>
           <span>添加商品</span>
         </a-menu-item>
+        <a-menu-item key="/dashboard/category/list">
+          <template #icon>
+            <tags-outlined />
+          </template>
+          <span>分类管理</span>
+        </a-menu-item>
       </a-menu>
     </a-layout-sider>
     <a-layout>
@@ -48,7 +54,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { ShoppingOutlined, PlusOutlined, HomeOutlined } from '@ant-design/icons-vue'
+import { ShoppingOutlined, PlusOutlined, HomeOutlined, TagsOutlined } from '@ant-design/icons-vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()

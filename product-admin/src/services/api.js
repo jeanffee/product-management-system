@@ -103,7 +103,24 @@ export const productAPI = {
   }
 }
 
+// HTTP方法封装
+const api = {
+  get: (url) => request(url),
+  post: (url, data) => request(url, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
+  put: (url, data) => request(url, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  }),
+  delete: (url) => request(url, {
+    method: 'DELETE'
+  })
+}
+
 // 默认导出
 export default {
+  ...api,
   product: productAPI
 }

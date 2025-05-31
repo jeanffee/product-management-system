@@ -116,6 +116,7 @@ import { message } from 'ant-design-vue'
 import { useRouter, useRoute } from 'vue-router'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { productAPI } from '../services/api.js'
+import api from '../services/api.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -153,11 +154,13 @@ const categoryOptions = ref([])
 // 获取分类列表
 const fetchCategories = async () => {
   try {
-    const categoryList = await productAPI.getCategories()
-    categories.value = categoryList
+    // 使用新的分类API获取数据
+    const response = await api.get('/categories')
+    const categoryList = response.data
+    categories.value = categoryList.map(cat => cat.name)
     categoryOptions.value = categoryList.map(cat => ({
-      label: cat,
-      value: cat
+      label: cat.name,
+      value: cat.name
     }))
   } catch (error) {
     message.error('获取分类列表失败: ' + error.message)

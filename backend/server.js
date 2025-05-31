@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import productsRouter from './routes/products.js';
 import uploadRouter from './routes/upload.js';
+import categoriesRouter from './routes/categories.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,7 +57,7 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       products: '/api/products',
-      categories: '/api/products/categories/list',
+      categories: '/api/categories',
       upload: '/api/upload/image'
     },
     status: 'running'
@@ -66,6 +67,7 @@ app.get('/', (req, res) => {
 // API 路由
 app.use('/api/products', productsRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/categories', categoriesRouter);
 
 // 健康检查
 app.get('/health', (req, res) => {
